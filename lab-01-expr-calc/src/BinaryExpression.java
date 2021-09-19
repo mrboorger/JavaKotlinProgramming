@@ -1,7 +1,7 @@
 public interface BinaryExpression extends Expression {
     enum OpType {
         ADDITION,
-        SUBTRACTION,
+        SUBTRACTION;
     }
 
     Expression getLeft();

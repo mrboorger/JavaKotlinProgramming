@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 
 public class Main {
     public static void main(String[] args) {
+        // TODO: rename method with lowerCamelCase
         testParserException();
     }
 
@@ -31,6 +32,8 @@ public class Main {
         parserExceptionTester.test(parser, "2 +");
         parserExceptionTester.test(parser, "+");
         parserExceptionTester.test(parser, "+ 2 2");
+        parserExceptionTester.test(parser, "\n 1 - 2  - -");
+        parserExceptionTester.test(parser, "\n 1 - - 3 3");
         parserExceptionTester.test(parser, "2 + 2 + xssd_dwD -   fg   -");
     }
 }

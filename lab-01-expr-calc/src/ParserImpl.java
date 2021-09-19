@@ -1,49 +1,61 @@
 import java.util.Stack;
 
 public class ParserImpl implements Parser {
-    public Expression parseExpression(String input) throws ExpressionParseException {
-        // divide input to tokens
-        // TODO: rewrite it
-        var operations = new Stack<String>();
-        var literals = new Stack<String>();
-        for (var strTok : input.split("\\s+")) {
-            if (strTok.equals("-") || strTok.equals("+")) {
-                operations.push(strTok);
-            } else {
-                literals.push(strTok);
+    enum Operation {
+        ADDITION,
+        SUBTRACTION;
+
+        private static Operation fromString(String str) {
+            switch (str) {
+                case "-": {
+                    return ADDITION;
+                }
+                case "+": {
+                    return SUBTRACTION;
+                }
+                default: {
+                    assert true : "Invalid operation " + str;
+                    return ADDITION;
+                }
             }
         }
-
-        Expression root = null;
-        while (operations.size() > 0) {
-            var strOp = operations.pop();
-            var opType = BinaryExpression.OpType.ADDITION;
-            if (strOp.equals("-")) {
-                opType = BinaryExpression.OpType.SUBTRACTION;
-            }
-
-            if ((root == null && literals.size() < 2) || (root != null && literals.size() < 1)) {
-                throw new ExpressionParseException("Invalid expression " + input);
-            }
-
-            if (root == null) {
-                root = new BinaryExpressionImpl(opType, CreateLiteral(literals.pop()), CreateLiteral(literals.pop()));
-            } else {
-                root = new BinaryExpressionImpl(opType, root, CreateLiteral(literals.pop()));
-            }
-        }
-        if (literals.size() > 0 && root == null) {
-            root = CreateLiteral(literals.pop());
-        }
-        if (literals.size() > 0) {
-            throw new ExpressionParseException("Invalid expression " + input);
-        }
-
-        return null;
     }
 
+    public Expression parseExpression(String input) throws ExpressionParseException {
+        var operations = new Stack<Operation>();
+        var expressions = new Stack<Expression>();
+        for (var strTok : input.split("\\s+")) {
+            switch (strTok) {
+                case "-":
+                case "+": {
+                    var newOperation = Operation.fromString(strTok);
+                    if (expressions.size() < 2) {
+                        throwExpressionParseException(input);
+                    }
+                    var newBinExpr = BinaryExpression.OpType.valueOf(newOperation.toString());
+                    expressions.push(new BinaryExpressionImpl(newBinExpr, expressions.pop(), expressions.pop()));
+                    operations.push(Operation.fromString(strTok));
+                }
+                default: {
+                    // literal
+                    expressions.push(CreateLiteral(strTok));
+                }
+            }
+        }
+        if (!operations.empty() || expressions.size() != 1) {
+            throwExpressionParseException(input);
+        }
+        return expressions.pop();
+    }
+
+    static private void throwExpressionParseException(String input) throws ExpressionParseException {
+        throw new ExpressionParseException("Invalid expression " + input);
+    }
+
+    // TODO: move to Literal interface
     static private Literal CreateLiteral(String strLiteral) {
         Double value = ConvertToDouble(strLiteral);
+        // TODO: check is literal
         return (value == null ? new Variable(strLiteral) : new Constant(value));
     }
 
