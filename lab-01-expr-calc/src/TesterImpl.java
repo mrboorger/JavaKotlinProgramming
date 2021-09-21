@@ -3,6 +3,7 @@ public class TesterImpl implements Tester {
     public void runAllTests() {
         testParserException();
         testDebugRepresentation();
+        testCalcDepth();
     }
 
     private static class parserExceptionTester {
@@ -70,6 +71,58 @@ public class TesterImpl implements Tester {
             String strExpr = "x_w + 2.3 - 0.22";
             String expected = "SUB(ADD(VAR[x_w], CON[2.3]), CON[0.22])";
             parserDebugRepresentationTester.test(parser,strExpr, expected);
+        }
+    }
+
+    private static class parserCalcDepthTester {
+        private static void test(ParserImpl parser, String strExpr, Integer expected) {
+            Expression root = null;
+            try {
+                root = parser.parseExpression(strExpr);
+            } catch (ExpressionParseException e) {
+                assert true : "Unexpected ExpressionParseException on " + strExpr;
+            }
+            assert root != null : "Unexpected null root";
+
+            Integer result = (Integer)root.accept(new CalcDepthVisitor());
+            assert result.equals(expected) : "Wrong depth " + result + " != " + expected;
+        }
+    }
+
+    void testCalcDepth() {
+        var parser = new ParserImpl();
+        {
+            String strExpr = "92.3";
+            Integer expected = 1;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "x";
+            Integer expected = 1;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "x + 12";
+            Integer expected = 2;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "x + 12 - 13";
+            Integer expected = 3;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "x + 12 - 13 - 2";
+            Integer expected = 4;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            var strBuilder = new StringBuilder("x");
+            for (int i = 0; i < 1000000; ++i) {
+                strBuilder.append(" + x");
+            }
+            Integer expected = 1000001;
+            parserCalcDepthTester.test(parser, strBuilder.toString(), expected);
         }
     }
 }
