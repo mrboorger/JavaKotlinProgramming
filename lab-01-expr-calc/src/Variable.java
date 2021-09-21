@@ -1,5 +1,5 @@
 public class Variable implements Literal {
-    private String mName;
+    private final String mName;
 
     Variable(String name) {
         mName = name;

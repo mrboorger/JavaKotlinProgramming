@@ -1,5 +1,5 @@
 public class Constant implements Literal {
-    private double mValue;
+    private final double mValue;
 
     Constant(double value) {
         mValue = value;
