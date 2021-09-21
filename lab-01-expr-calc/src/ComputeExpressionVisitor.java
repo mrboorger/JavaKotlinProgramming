@@ -18,14 +18,13 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
     }
 
     @Override
-    public Double visitLiteral(Literal expr) {
-//        return expr.getValue();
-        return 1.0;
+    public Double visitLiteral(Literal literal) {
+        return literal.getValue();
     }
 
     @Override
     public Double visitVariable(Variable variable) {
-        return 1.0;
+        return variable.getValue();
     }
 
 //    @Override

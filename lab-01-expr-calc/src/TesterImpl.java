@@ -10,6 +10,7 @@ public class TesterImpl implements Tester {
         testDebugRepresentation();
         testCalcDepth();
         testVariablesVisitor();
+        testComputeExpression();
     }
 
     private static class parserExceptionTester {
@@ -190,6 +191,60 @@ public class TesterImpl implements Tester {
                 put("xx", -1.23);
             }};
             variablesVisitorTester.test(parser, strExpr, scanner, expected);
+        }
+    }
+
+    private static class ComputeExpressionTester {
+        private static void test(ParserImpl parser, String strExpr,
+                                 Scanner scanner, double expected) {
+            Expression root = null;
+            try {
+                root = parser.parseExpression(strExpr);
+            } catch (ExpressionParseException e) {
+                assert true : "Unexpected ExpressionParseException on " + strExpr;
+            }
+            assert root != null : "Unexpected null root";
+
+            var varVisitor = new VariablesVisitor(scanner);
+            root.accept(varVisitor);
+
+            var result = (double)root.accept(new ComputeExpressionVisitor());
+            assert result == expected : "Invalid result at expression " + strExpr +
+                                        " [" + result + " vs " + expected + "]";
+        }
+    }
+
+    private static void testComputeExpression() {
+        var parser = new ParserImpl();
+        {
+            var strExpr = new String("-0.233");
+            var scanner = new Scanner("\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, -0.233);
+        }
+        {
+            var strExpr = new String("-0.233 + 13");
+            var scanner = new Scanner("\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 12.767);
+        }
+        {
+            var strExpr = new String("x");
+            var scanner = new Scanner("3.1\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 3.1);
+        }
+        {
+            var strExpr = new String("1 - x");
+            var scanner = new Scanner("-1.1\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 2.1);
+        }
+        {
+            var strExpr = new String("x + 1.3 + x - x");
+            var scanner = new Scanner("3.1\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 4.4);
+        }
+        {
+            var strExpr = new String("x + 1.3 + x - x - xx");
+            var scanner = new Scanner("3.1 2.2\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 2.2);
         }
     }
 }
