@@ -1,9 +1,15 @@
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Scanner;
+
 public class TesterImpl implements Tester {
     @Override
     public void runAllTests() {
         testParserException();
         testDebugRepresentation();
         testCalcDepth();
+        testVariablesVisitor();
     }
 
     private static class parserExceptionTester {
@@ -76,7 +82,7 @@ public class TesterImpl implements Tester {
         {
             String strExpr = "x_w + 2.3 - 0.22";
             String expected = "SUB(ADD(VAR[x_w], CON[2.3]), CON[0.22])";
-            parserDebugRepresentationTester.test(parser,strExpr, expected);
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
         }
     }
 
@@ -129,6 +135,61 @@ public class TesterImpl implements Tester {
             }
             Integer expected = 1000001;
             parserCalcDepthTester.test(parser, strBuilder.toString(), expected);
+        }
+    }
+
+    private static class variablesVisitorTester {
+        private static void test(ParserImpl parser, String strExpr,
+                                 Scanner scanner,
+                                 HashMap<String, Double> expected) {
+            Expression root = null;
+            try {
+                root = parser.parseExpression(strExpr);
+            } catch (ExpressionParseException e) {
+                assert true : "Unexpected ExpressionParseException on " + strExpr;
+            }
+            assert root != null : "Unexpected null root";
+
+            var varVisitor = new VariablesVisitor(scanner);
+
+            root.accept(varVisitor);
+            try {
+                Field field = varVisitor.getClass().getDeclaredField("mVariablesValues");
+                field.setAccessible(true);
+                var hashMap = (HashMap<String, Integer>)field.get(varVisitor);
+                assert hashMap.equals(expected) : "HashMaps don't equals";
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                assert true : "No field error";
+            }
+        }
+    }
+
+    void testVariablesVisitor() {
+        var parser = new ParserImpl();
+        {
+            var strExpr = new String("Sd");
+            var scanner = new Scanner("3.1\n").useLocale(Locale.US);
+            var expected = new HashMap<String, Double>() {{
+                put("Sd", 3.1);
+            }};
+            variablesVisitorTester.test(parser, strExpr, scanner, expected);
+        }
+        {
+            var strExpr = new String("x + 1.2 + x");
+            var scanner = new Scanner("3.33\n").useLocale(Locale.US);
+            var expected = new HashMap<String, Double>() {{
+                put("x", 3.33);
+            }};
+            variablesVisitorTester.test(parser, strExpr, scanner, expected);
+        }
+        {
+            var strExpr = new String("x + 1.2 + x + xx - x + xx");
+            var scanner = new Scanner("3.33 -1.23\n").useLocale(Locale.US);
+            var expected = new HashMap<String, Double>() {{
+                put("x", 3.33);
+                put("xx", -1.23);
+            }};
+            variablesVisitorTester.test(parser, strExpr, scanner, expected);
         }
     }
 }

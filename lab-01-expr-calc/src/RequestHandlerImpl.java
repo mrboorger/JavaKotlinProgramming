@@ -1,9 +1,10 @@
+import java.util.Locale;
 import java.util.Scanner;
 
 public class RequestHandlerImpl implements RequestHandler {
     @Override
     public void request() {
-        var in = new Scanner(System.in);
+        var in = new Scanner(System.in).useLocale(Locale.US);
         var parser = new ParserImpl();
         Expression root = null;
         while (root == null) {
