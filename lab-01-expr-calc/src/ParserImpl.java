@@ -24,10 +24,16 @@ public class ParserImpl implements Parser {
     public Expression parseExpression(String input) throws ExpressionParseException {
         var operations = new Stack<Operation>();
         var expressions = new Stack<Expression>();
+        boolean isPrevLiteral = false;
         for (var strTok : input.split("\\s+")) {
             switch (strTok) {
                 case "-":
                 case "+": {
+                    // unary operation
+                    if (!isPrevLiteral) {
+                        throwExpressionParseException(input);
+                    }
+                    isPrevLiteral = false;
                     var newOperation = Operation.fromString(strTok);
                     while (!operations.empty()) {
                         if (expressions.size() < 2) {
@@ -44,6 +50,7 @@ public class ParserImpl implements Parser {
                 }
                 default: {
                     // literal
+                    isPrevLiteral = true;
                     expressions.push(CreateLiteral(strTok));
                     break;
                 }
