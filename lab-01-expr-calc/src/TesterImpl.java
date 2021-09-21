@@ -7,13 +7,13 @@ public class TesterImpl implements Tester {
 
     private static class parserExceptionTester {
         private static void test(ParserImpl parser, String strExpr) {
-            boolean is_caught = false;
+            boolean isCaught = false;
             try {
                 parser.parseExpression(strExpr);
             } catch (ExpressionParseException e) {
-                is_caught = true;
+                isCaught = true;
             }
-            assert is_caught : "parser hasn't thrown the exception on expression " + strExpr;
+            assert isCaught : "parser hasn't thrown the exception on expression " + strExpr;
         }
     }
 

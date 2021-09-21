@@ -58,11 +58,11 @@ public class ParserImpl implements Parser {
         }
 
         while(!operations.empty()) {
-            var new_operation = operations.pop();
+            var newOperation = operations.pop();
             if (expressions.size() < 2) {
                 throwExpressionParseException(input);
             }
-            var newBinExpr = BinaryExpression.OpType.valueOf(new_operation.toString());
+            var newBinExpr = BinaryExpression.OpType.valueOf(newOperation.toString());
             var secondOperand = expressions.pop();
             var firstOperand = expressions.pop();
             expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
@@ -81,12 +81,12 @@ public class ParserImpl implements Parser {
 
     // TODO: move to Literal interface
     static private Literal CreateLiteral(String strLiteral) {
-        Double value = ConvertToDouble(strLiteral);
+        Double value = convertToDouble(strLiteral);
         // TODO: check is literal
         return (value == null ? new Variable(strLiteral) : new Constant(value));
     }
 
-    static private Double ConvertToDouble(String str) {
+    static private Double convertToDouble(String str) {
         try {
             return Double.parseDouble(str);
         } catch (NumberFormatException e) {

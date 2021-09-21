@@ -11,10 +11,10 @@ public interface BinaryExpression extends Expression {
             mOpName = opName;
         }
 
-        public char GetOpSymbol() {
+        public char getOpSymbol() {
             return mOpSymbol;
         }
-        public String GetOpName() {
+        public String getOpName() {
             return mOpName;
         }
     }
