@@ -8,6 +8,11 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public String visitLiteral(Literal expr) {
-        return expr.getRepresentation();
+        return "CON[" + expr.getValue() + "]";
+    }
+
+    @Override
+    public String visitVariable(Variable expr) {
+        return "VAR[" + expr.getName() + "]";
     }
 }

@@ -1,17 +1,7 @@
-public class Variable implements Literal {
-    private final String mName;
-
-    Variable(String name) {
-        mName = name;
+public interface Variable extends Expression {
+    default Object accept(ExpressionVisitor visitor) {
+        return visitor.visitVariable(this);
     }
-
-    @Override
-    public String getRepresentation() {
-        return "VAR[" + mName + "]";
-    }
-
-    @Override
-    public double getValue() {
-        return 0;
-    }
+    String getName();
+    double getValue();
 }

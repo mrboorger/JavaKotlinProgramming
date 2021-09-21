@@ -24,16 +24,16 @@ public class ParserImpl implements Parser {
     public Expression parseExpression(String input) throws ExpressionParseException {
         var operations = new Stack<Operation>();
         var expressions = new Stack<Expression>();
-        boolean isPrevLiteral = false;
+        boolean isPrevVariableOrConstant = false;
         for (var strTok : input.split("\\s+")) {
             switch (strTok) {
                 case "-":
                 case "+": {
                     // unary operation
-                    if (!isPrevLiteral) {
+                    if (!isPrevVariableOrConstant) {
                         throwExpressionParseException(input);
                     }
-                    isPrevLiteral = false;
+                    isPrevVariableOrConstant = false;
                     var newOperation = Operation.fromString(strTok);
                     while (!operations.empty()) {
                         if (expressions.size() < 2) {
@@ -49,9 +49,9 @@ public class ParserImpl implements Parser {
                     break;
                 }
                 default: {
-                    // literal
-                    isPrevLiteral = true;
-                    expressions.push(CreateLiteral(strTok));
+                    // variable or constant
+                    isPrevVariableOrConstant = true;
+                    expressions.push(CreateVariableOrConstant(strTok));
                     break;
                 }
             }
@@ -80,10 +80,10 @@ public class ParserImpl implements Parser {
     }
 
     // TODO: move to Literal interface
-    static private Literal CreateLiteral(String strLiteral) {
-        Double value = convertToDouble(strLiteral);
+    static private Expression CreateVariableOrConstant(String str) {
+        Double value = convertToDouble(str);
         // TODO: check is literal
-        return (value == null ? new Variable(strLiteral) : new Constant(value));
+        return (value == null ? new VariableImpl(str) : new LiteralImpl(value));
     }
 
     static private Double convertToDouble(String str) {

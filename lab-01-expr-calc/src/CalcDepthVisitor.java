@@ -10,4 +10,9 @@ public class CalcDepthVisitor implements ExpressionVisitor {
     public Integer visitLiteral(Literal expr) {
         return 1;
     }
+
+    @Override
+    public Integer visitVariable(Variable expr) {
+        return 1;
+    }
 }
