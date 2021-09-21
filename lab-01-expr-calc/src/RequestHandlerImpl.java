@@ -9,6 +9,7 @@ public class RequestHandlerImpl implements RequestHandler {
         while (root == null) {
             System.out.print("enter expression: ");
             var strExpr = in.nextLine();
+            System.out.println();
             try {
                 root = parser.parseExpression(strExpr);
             } catch (ExpressionParseException e) {
@@ -19,5 +20,6 @@ public class RequestHandlerImpl implements RequestHandler {
         System.out.println("tree: " + strDebug);
         var depth = root.accept(new CalcDepthVisitor());
         System.out.println("expr-tree depth: " + depth.toString());
+        root.accept(new VariablesVisitor(in));
     }
 }

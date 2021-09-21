@@ -15,4 +15,9 @@ public class VariableImpl implements Variable {
     public double getValue() {
         return mValue;
     }
+
+    @Override
+    public void setValue(double value) {
+        this.mValue = value;
+    }
 }
