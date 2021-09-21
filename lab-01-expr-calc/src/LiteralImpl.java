@@ -1,7 +1,6 @@
 public class LiteralImpl implements Literal {
     private final double mValue;
 
-
     LiteralImpl(double value) {
         mValue = value;
     }
