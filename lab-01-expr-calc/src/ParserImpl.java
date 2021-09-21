@@ -79,11 +79,22 @@ public class ParserImpl implements Parser {
         throw new ExpressionParseException("Invalid expression " + input);
     }
 
+    static boolean isVariable(String str) {
+        assert str != null : "";
+        return (!str.isEmpty() && Character.isLetter(str.charAt(0)));
+    }
+
     // TODO: move to Literal interface
-    static private Expression CreateVariableOrConstant(String str) {
+    static private Expression CreateVariableOrConstant(String str) throws ExpressionParseException {
         Double value = convertToDouble(str);
-        // TODO: check is literal
-        return (value == null ? new VariableImpl(str) : new LiteralImpl(value));
+        if (value != null) {
+            return new LiteralImpl(value);
+        }
+        if (isVariable(str)) {
+            return new VariableImpl(str);
+        }
+        throwExpressionParseException(str);
+        return null;
     }
 
     static private Double convertToDouble(String str) {

@@ -33,6 +33,12 @@ public class TesterImpl implements Tester {
         TesterImpl.parserExceptionTester.test(parser, "\n 1 - 2  - -");
         TesterImpl.parserExceptionTester.test(parser, "\n 1 - - 3 3");
         TesterImpl.parserExceptionTester.test(parser, "2 + 2 + xssd_dwD -   fg   -");
+
+        TesterImpl.parserExceptionTester.test(parser, "1s");
+        TesterImpl.parserExceptionTester.test(parser, "5ds + fd");
+        TesterImpl.parserExceptionTester.test(parser, "f - -d");
+        TesterImpl.parserExceptionTester.test(parser, "f - +d");
+        TesterImpl.parserExceptionTester.test(parser, "_dsfsd");
     }
 
     private static class parserDebugRepresentationTester {
