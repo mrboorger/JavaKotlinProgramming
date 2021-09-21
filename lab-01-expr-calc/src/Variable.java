@@ -6,6 +6,11 @@ public class Variable implements Literal {
     }
 
     @Override
+    public String getRepresentation() {
+        return "VAR[" + mName + "]";
+    }
+
+    @Override
     public double getValue() {
         return 0;
     }

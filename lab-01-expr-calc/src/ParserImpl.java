@@ -7,10 +7,10 @@ public class ParserImpl implements Parser {
 
         private static Operation fromString(String str) {
             switch (str) {
-                case "-": {
+                case "+": {
                     return ADDITION;
                 }
-                case "+": {
+                case "-": {
                     return SUBTRACTION;
                 }
                 default: {
@@ -29,19 +29,39 @@ public class ParserImpl implements Parser {
                 case "-":
                 case "+": {
                     var newOperation = Operation.fromString(strTok);
-                    if (expressions.size() < 2) {
-                        throwExpressionParseException(input);
+                    while (!operations.empty()) {
+                        if (expressions.size() < 2) {
+                            throwExpressionParseException(input);
+                        }
+                        var newBinExpr = BinaryExpression.OpType.valueOf(operations.pop().toString());
+                        // TODO: remove double of code
+                        var secondOperand = expressions.pop();
+                        var firstOperand = expressions.pop();
+                        expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
                     }
-                    var newBinExpr = BinaryExpression.OpType.valueOf(newOperation.toString());
-                    expressions.push(new BinaryExpressionImpl(newBinExpr, expressions.pop(), expressions.pop()));
-                    operations.push(Operation.fromString(strTok));
+                    operations.push(newOperation);
+                    break;
                 }
                 default: {
                     // literal
                     expressions.push(CreateLiteral(strTok));
+                    break;
                 }
             }
         }
+
+        while(!operations.empty()) {
+            var new_operation = operations.pop();
+            if (expressions.size() < 2) {
+                throwExpressionParseException(input);
+            }
+            var newBinExpr = BinaryExpression.OpType.valueOf(new_operation.toString());
+            var secondOperand = expressions.pop();
+            var firstOperand = expressions.pop();
+            expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
+        }
+
+
         if (!operations.empty() || expressions.size() != 1) {
             throwExpressionParseException(input);
         }

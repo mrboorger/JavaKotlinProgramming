@@ -6,6 +6,11 @@ public class Constant implements Literal {
     }
 
     @Override
+    public String getRepresentation() {
+        return "CON[" + String.valueOf(mValue) + "]";
+    }
+
+    @Override
     public double getValue() {
         return mValue;
     }
