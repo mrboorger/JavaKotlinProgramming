@@ -21,6 +21,18 @@ public class ParserImpl implements Parser {
         }
     }
 
+    static private void processOperations(Stack<Operation> operations,
+                                          Stack<Expression> expressions,
+                                          String input) throws ExpressionParseException {
+        if (expressions.size() < 2) {
+            throwExpressionParseException(input);
+        }
+        var newBinExpr = BinaryExpression.OpType.valueOf(operations.pop().toString());
+        var secondOperand = expressions.pop();
+        var firstOperand = expressions.pop();
+        expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
+    }
+
     public Expression parseExpression(String input) throws ExpressionParseException {
         var operations = new Stack<Operation>();
         var expressions = new Stack<Expression>();
@@ -36,14 +48,7 @@ public class ParserImpl implements Parser {
                     isPrevVariableOrConstant = false;
                     var newOperation = Operation.fromString(strTok);
                     while (!operations.empty()) {
-                        if (expressions.size() < 2) {
-                            throwExpressionParseException(input);
-                        }
-                        var newBinExpr = BinaryExpression.OpType.valueOf(operations.pop().toString());
-                        // TODO: remove double of code
-                        var secondOperand = expressions.pop();
-                        var firstOperand = expressions.pop();
-                        expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
+                        processOperations(operations, expressions, input);
                     }
                     operations.push(newOperation);
                     break;
@@ -58,14 +63,7 @@ public class ParserImpl implements Parser {
         }
 
         while(!operations.empty()) {
-            var newOperation = operations.pop();
-            if (expressions.size() < 2) {
-                throwExpressionParseException(input);
-            }
-            var newBinExpr = BinaryExpression.OpType.valueOf(newOperation.toString());
-            var secondOperand = expressions.pop();
-            var firstOperand = expressions.pop();
-            expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
+            processOperations(operations, expressions, input);
         }
 
 
