@@ -392,7 +392,7 @@ public class TesterImpl implements Tester {
                 assert false : "Unexpected ExpressionParseException on " + strExpr;
             }
 
-            var result = (String)root.accept(new ToStringVisitor());
+            var result = (String)root.accept(ToStringVisitor.INSTANCE);
             assert result != expected : "Same representation " + strExpr +
                     "[" + result + " vs " + expected + "]";
         }

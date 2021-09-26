@@ -1,4 +1,6 @@
 public class ToStringVisitor implements ExpressionVisitor {
+    private ToStringVisitor() {}
+
     @Override
     public String visitBinaryExpression(BinaryExpression expr) {
         var leftValue = (String)expr.getLeft().accept(this);
@@ -20,4 +22,6 @@ public class ToStringVisitor implements ExpressionVisitor {
     public String visitParenthesis(ParenthesisExpression expr) {
         return "(" + expr.getChild().accept(this) + ")";
     }
+
+    public static final ToStringVisitor INSTANCE = new ToStringVisitor();
 }

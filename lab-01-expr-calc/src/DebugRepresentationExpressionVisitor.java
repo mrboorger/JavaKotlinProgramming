@@ -26,5 +26,4 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
 
     public static final DebugRepresentationExpressionVisitor INSTANCE =
             new DebugRepresentationExpressionVisitor();
-
 }
