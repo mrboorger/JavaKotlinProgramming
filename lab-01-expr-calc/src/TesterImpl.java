@@ -46,6 +46,11 @@ public class TesterImpl implements Tester {
         TesterImpl.parserExceptionTester.test(parser, "f - -d");
         TesterImpl.parserExceptionTester.test(parser, "f - +d");
         TesterImpl.parserExceptionTester.test(parser, "_dsfsd");
+
+        TesterImpl.parserExceptionTester.test(parser, "* 2 2");
+        TesterImpl.parserExceptionTester.test(parser, "/ 2 2");
+        TesterImpl.parserExceptionTester.test(parser, "/ 2 + 2");
+        TesterImpl.parserExceptionTester.test(parser, "2 / - 2");
     }
 
     private static class parserDebugRepresentationTester {
@@ -83,6 +88,32 @@ public class TesterImpl implements Tester {
         {
             String strExpr = "x_w + 2.3 - 0.22";
             String expected = "SUB(ADD(VAR[x_w], CON[2.3]), CON[0.22])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+
+        {
+            String strExpr = "1 * 3";
+            String expected = "MUL(CON[1.0], CON[3.0])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "1.2 * 3.3";
+            String expected = "MUL(CON[1.2], CON[3.3])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "x + x / 3 * 2 + 3";
+            String expected = "ADD(ADD(VAR[x], MUL(DIV(VAR[x], CON[3.0]), CON[2.0])), CON[3.0])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "x + x / 3 * 2 + 3";
+            String expected = "ADD(ADD(VAR[x], MUL(DIV(VAR[x], CON[3.0]), CON[2.0])), CON[3.0])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "2 * x + 3 / 4.2 + t";
+            String expected = "ADD(ADD(MUL(CON[2.0], VAR[x]), DIV(CON[3.0], CON[4.2])), VAR[t])";
             parserDebugRepresentationTester.test(parser, strExpr, expected);
         }
     }
@@ -136,6 +167,16 @@ public class TesterImpl implements Tester {
             }
             Integer expected = 1000001;
             parserCalcDepthTester.test(parser, strBuilder.toString(), expected);
+        }
+        {
+            String strExpr = "x + x / 3 * 2 + 3";
+            Integer expected = 5;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "2 * 2 + 3 * 3";
+            Integer expected = 3;
+            parserCalcDepthTester.test(parser, strExpr, expected);
         }
     }
 
@@ -192,9 +233,20 @@ public class TesterImpl implements Tester {
             }};
             variablesVisitorTester.test(parser, strExpr, scanner, expected);
         }
+        {
+            var strExpr = new String("12 + x / 3 - xx * 3 / x");
+            var scanner = new Scanner("3.33 4.33\n").useLocale(Locale.US);
+            var expected = new HashMap<String, Double>() {{
+                put("x", 3.33);
+                put("xx", 4.33);
+            }};
+            variablesVisitorTester.test(parser, strExpr, scanner, expected);
+        }
     }
 
     private static class ComputeExpressionTester {
+        static final double EPS = 1e-9;
+
         private static void test(ParserImpl parser, String strExpr,
                                  Scanner scanner, double expected) {
             Expression root = null;
@@ -209,7 +261,7 @@ public class TesterImpl implements Tester {
             root.accept(varVisitor);
 
             var result = (double)root.accept(new ComputeExpressionVisitor());
-            assert result == expected : "Invalid result at expression " + strExpr +
+            assert Math.abs(result - expected) < EPS : "Invalid result at expression " + strExpr +
                                         " [" + result + " vs " + expected + "]";
         }
     }
@@ -245,6 +297,26 @@ public class TesterImpl implements Tester {
             var strExpr = new String("x + 1.3 + x - x - xx");
             var scanner = new Scanner("3.1 2.2\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 2.2);
+        }
+        {
+            var strExpr = new String("3 * 5.3");
+            var scanner = new Scanner("\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 15.9);
+        }
+        {
+            var strExpr = new String("5 / 4");
+            var scanner = new Scanner("\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 1.25);
+        }
+        {
+            var strExpr = new String("2.5 * x / 10 - 3.0 / x");
+            var scanner = new Scanner("5.5\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 0.829545454545);
+        }
+        {
+            var strExpr = new String("2.5 * x / 10 - 3.0 / x + xx / x - x");
+            var scanner = new Scanner("3.2 4\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, -2.0875);
         }
     }
 }

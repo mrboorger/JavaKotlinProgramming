@@ -1,7 +1,10 @@
 public interface BinaryExpression extends Expression {
     enum OpType {
         ADDITION('+', "ADD"),
-        SUBTRACTION('-', "SUB");
+        SUBTRACTION('-', "SUB"),
+        MULTIPLICATION('*', "MUL"),
+        DIVISION('/', "DIV");
+
 
         char mOpSymbol;
         String mOpName;

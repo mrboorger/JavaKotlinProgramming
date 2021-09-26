@@ -2,8 +2,28 @@ import java.util.Stack;
 
 public class ParserImpl implements Parser {
     enum Operation {
-        ADDITION,
-        SUBTRACTION;
+        ADDITION(3),
+        SUBTRACTION(3),
+        MULTIPLICATION(2),
+        DIVISION(2);
+
+        private final int mPriority;  // lower = more priority
+
+        Operation(int priority) {
+            mPriority = priority;
+        }
+
+        static boolean isMorePriority(Operation lhs, Operation rhs) {
+            return lhs.mPriority < rhs.mPriority;
+        }
+
+        static boolean isEqualPriority(Operation lhs, Operation rhs) {
+            return lhs.mPriority == rhs.mPriority;
+        }
+
+        static boolean isNotLessPriority(Operation lhs, Operation rhs) {
+            return lhs.mPriority <= rhs.mPriority;
+        }
 
         private static Operation fromString(String str) {
             switch (str) {
@@ -12,6 +32,12 @@ public class ParserImpl implements Parser {
                 }
                 case "-": {
                     return SUBTRACTION;
+                }
+                case "*": {
+                    return MULTIPLICATION;
+                }
+                case "/": {
+                    return DIVISION;
                 }
                 default: {
                     assert true : "Invalid operation " + str;
@@ -40,14 +66,16 @@ public class ParserImpl implements Parser {
         for (var strTok : input.split("\\s+")) {
             switch (strTok) {
                 case "-":
-                case "+": {
+                case "+":
+                case "*":
+                case "/": {
                     // unary operation
                     if (!isPrevVariableOrConstant) {
                         throwExpressionParseException(input);
                     }
                     isPrevVariableOrConstant = false;
                     var newOperation = Operation.fromString(strTok);
-                    while (!operations.empty()) {
+                    while (!operations.empty() && Operation.isNotLessPriority(operations.peek(), newOperation)) {
                         processOperations(operations, expressions, input);
                     }
                     operations.push(newOperation);

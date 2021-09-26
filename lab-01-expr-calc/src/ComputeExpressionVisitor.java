@@ -10,6 +10,12 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
             case SUBTRACTION: {
                 return leftValue - rightValue;
             }
+            case MULTIPLICATION: {
+                return leftValue * rightValue;
+            }
+            case DIVISION: {
+                return leftValue / rightValue;
+            }
 //            case default: {
 //            }
         }
