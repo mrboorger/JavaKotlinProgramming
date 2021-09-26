@@ -5,6 +5,6 @@ public interface Variable extends Expression {
     }
 
     String getName();
-    public double getValue();
+    double getValue();
     void setValue(double value);
 }

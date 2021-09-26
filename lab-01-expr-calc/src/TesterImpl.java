@@ -393,7 +393,7 @@ public class TesterImpl implements Tester {
             }
 
             var result = (String)root.accept(ToStringVisitor.INSTANCE);
-            assert result != expected : "Same representation " + strExpr +
+            assert result.equals(expected) : "Same representation " + strExpr +
                     "[" + result + " vs " + expected + "]";
         }
     }
