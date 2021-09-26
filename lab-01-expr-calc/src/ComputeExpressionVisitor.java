@@ -1,4 +1,6 @@
 public class ComputeExpressionVisitor implements ExpressionVisitor {
+    private ComputeExpressionVisitor() {}
+
     @Override
     public Double visitBinaryExpression(BinaryExpression expr) {
         var leftValue = (Double)expr.getLeft().accept(this);
@@ -35,4 +37,6 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
     public Double visitParenthesis(ParenthesisExpression expr) {
         return (Double)expr.getChild().accept(this);
     }
+
+    public static final ComputeExpressionVisitor INSTANCE = new ComputeExpressionVisitor();
 }

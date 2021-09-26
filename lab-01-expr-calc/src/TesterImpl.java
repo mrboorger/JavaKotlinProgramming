@@ -303,7 +303,7 @@ public class TesterImpl implements Tester {
             var varVisitor = new VariablesVisitor(scanner);
             root.accept(varVisitor);
 
-            var result = (double)root.accept(new ComputeExpressionVisitor());
+            var result = (double)root.accept(ComputeExpressionVisitor.INSTANCE);
             assert Math.abs(result - expected) < EPS : "Invalid result at expression " + strExpr +
                                         " [" + result + " vs " + expected + "]";
         }
