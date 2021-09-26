@@ -21,7 +21,7 @@ public class RequestHandlerImpl implements RequestHandler {
         System.out.println("tree: " + strDebug);
         var str = root.accept(new ToStringVisitor());
         System.out.println("to string: " + str);
-        var depth = root.accept(new CalcDepthVisitor());
+        var depth = root.accept(CalcDepthVisitor.INSTANCE);
         System.out.println("expr-tree depth: " + depth.toString());
         root.accept(new VariablesVisitor(in));
         var result = (double)root.accept(new ComputeExpressionVisitor());

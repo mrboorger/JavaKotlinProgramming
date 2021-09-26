@@ -1,4 +1,6 @@
 public class CalcDepthVisitor implements ExpressionVisitor {
+    private CalcDepthVisitor() {}
+
     @Override
     public Integer visitBinaryExpression(BinaryExpression expr) {
         var leftValue = (Integer)expr.getLeft().accept(this);
@@ -21,4 +23,6 @@ public class CalcDepthVisitor implements ExpressionVisitor {
         var childValue = (Integer)expr.getChild().accept(this);
         return childValue + 1;
     }
+
+    public static final CalcDepthVisitor INSTANCE = new CalcDepthVisitor();
 }
