@@ -69,7 +69,7 @@ public class TesterImpl implements Tester {
                 assert false : "Unexpected ExpressionParseException on " + strExpr + e.getMessage();
             }
 
-            String result = (String)root.accept(new DebugRepresentationExpressionVisitor());
+            String result = (String)root.accept(DebugRepresentationExpressionVisitor.INSTANCE);
             assert result.equals(expected) : result + "!=" + expected;
         }
     }

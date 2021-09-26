@@ -1,4 +1,6 @@
 public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
+    private DebugRepresentationExpressionVisitor() {}
+
     @Override
     public String visitBinaryExpression(BinaryExpression expr) {
         var leftValue = (String)expr.getLeft().accept(this);
@@ -21,4 +23,8 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
         var childValue = (String)expr.getChild().accept(this);
         return "PAR(" + childValue + ")";
     }
+
+    public static final DebugRepresentationExpressionVisitor INSTANCE =
+            new DebugRepresentationExpressionVisitor();
+
 }

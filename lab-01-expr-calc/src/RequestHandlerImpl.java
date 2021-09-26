@@ -17,7 +17,7 @@ public class RequestHandlerImpl implements RequestHandler {
                 System.out.println("Invalid expression. Enter valid one");
             }
         }
-        var strDebug = root.accept(new DebugRepresentationExpressionVisitor());
+        var strDebug = root.accept(DebugRepresentationExpressionVisitor.INSTANCE);
         System.out.println("tree: " + strDebug);
         var str = root.accept(new ToStringVisitor());
         System.out.println("to string: " + str);
