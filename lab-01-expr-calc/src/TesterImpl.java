@@ -11,6 +11,7 @@ public class TesterImpl implements Tester {
         testCalcDepth();
         testVariablesVisitor();
         testComputeExpression();
+        testToString();
     }
 
     private static class parserExceptionTester {
@@ -379,6 +380,56 @@ public class TesterImpl implements Tester {
             String strExpr = "    gf + t * (x - (x * ((gf + t) - 5) / (12 + 4 / 6)) / 6) * 5 ";
             var scanner = new Scanner("3 4 -4\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, -74.894736842105263);
+        }
+    }
+
+    private static class ToStringTester {
+        private static void test(ParserImpl parser, String strExpr, String expected) {
+            Expression root = null;
+            try {
+                root = parser.parseExpression(strExpr);
+            } catch (ExpressionParseException e) {
+                assert false : "Unexpected ExpressionParseException on " + strExpr;
+            }
+
+            var result = (String)root.accept(new ToStringVisitor());
+            assert result != expected : "Same representation " + strExpr +
+                    "[" + result + " vs " + expected + "]";
+        }
+    }
+
+    private static void testToString() {
+        var parser = new ParserImpl();
+        {
+            var strExpr = "  -0.233 ";
+            var expected = " -0.233";
+            ToStringTester.test(parser, strExpr, expected);
+        }
+        {
+            var strExpr = "    (Budgie )";
+            var expected = "(Budgie)";
+            ToStringTester.test(parser, strExpr, expected);
+        }
+        {
+            var strExpr = "1 +   3 ";
+            var expected = "1 + 3";
+            ToStringTester.test(parser, strExpr, expected);
+        }
+        {
+            var strExpr = "x / x + 13 - (3 )";
+            var expected = "x / x + 13 - (3)";
+            ToStringTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "3 + (Chifuyu + 33) / ((13 - x) + 12)";
+            var expected = "gf + t * (x - (x * ((gf + t) - 5) / (12 + 4 / 6)) / 6) * 5";
+            ToStringTester.test(parser, strExpr, expected);
+        }
+        {
+            var strExpr = "    gf +   t * (x - (x *   ((gf + t) - 5    ) / " +
+                          "(12   +  4  /   6)) / 6)   *   5   ";
+            var expected = "gf + t * (x - (x * ((gf + t) - 5) / (12 + 4 / 6)) / 6) * 5";
+            ToStringTester.test(parser, strExpr, expected);
         }
     }
 }
