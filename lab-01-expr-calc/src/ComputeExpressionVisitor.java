@@ -16,8 +16,6 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
             case DIVISION: {
                 return leftValue / rightValue;
             }
-//            case default: {
-//            }
         }
         assert false: "Unreachable";
         return 0.0;

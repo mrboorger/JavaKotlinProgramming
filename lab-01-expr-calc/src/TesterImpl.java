@@ -185,12 +185,8 @@ public class TesterImpl implements Tester {
             parserCalcDepthTester.test(parser, strExpr, expected);
         }
         {
-            var strBuilder = new StringBuilder("x");
-            for (int i = 0; i < 1000000; ++i) {
-                strBuilder.append(" + x");
-            }
             Integer expected = 1000001;
-            parserCalcDepthTester.test(parser, strBuilder.toString(), expected);
+            parserCalcDepthTester.test(parser, "x" + " + x".repeat(1000000), expected);
         }
         {
             String strExpr = "x + x / 3 * 2 + 3";
@@ -247,7 +243,7 @@ public class TesterImpl implements Tester {
     void testVariablesVisitor() {
         var parser = new ParserImpl();
         {
-            var strExpr = new String("Sd");
+            var strExpr = "Sd";
             var scanner = new Scanner("3.1\n").useLocale(Locale.US);
             var expected = new HashMap<String, Double>() {{
                 put("Sd", 3.1);
@@ -255,7 +251,7 @@ public class TesterImpl implements Tester {
             variablesVisitorTester.test(parser, strExpr, scanner, expected);
         }
         {
-            var strExpr = new String("x + 1.2 + x");
+            var strExpr = "x + 1.2 + x";
             var scanner = new Scanner("3.33\n").useLocale(Locale.US);
             var expected = new HashMap<String, Double>() {{
                 put("x", 3.33);
@@ -263,7 +259,7 @@ public class TesterImpl implements Tester {
             variablesVisitorTester.test(parser, strExpr, scanner, expected);
         }
         {
-            var strExpr = new String("x + 1.2 + x + xx - x + xx");
+            var strExpr = "x + 1.2 + x + xx - x + xx";
             var scanner = new Scanner("3.33 -1.23\n").useLocale(Locale.US);
             var expected = new HashMap<String, Double>() {{
                 put("x", 3.33);
@@ -272,7 +268,7 @@ public class TesterImpl implements Tester {
             variablesVisitorTester.test(parser, strExpr, scanner, expected);
         }
         {
-            var strExpr = new String("12 + x / 3 - xx * 3 / x");
+            var strExpr = "12 + x / 3 - xx * 3 / x";
             var scanner = new Scanner("3.33 4.33\n").useLocale(Locale.US);
             var expected = new HashMap<String, Double>() {{
                 put("x", 3.33);
@@ -315,52 +311,52 @@ public class TesterImpl implements Tester {
     private static void testComputeExpression() {
         var parser = new ParserImpl();
         {
-            var strExpr = new String("-0.233");
+            var strExpr = "-0.233";
             var scanner = new Scanner("\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, -0.233);
         }
         {
-            var strExpr = new String("-0.233 + 13");
+            var strExpr = "-0.233 + 13";
             var scanner = new Scanner("\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 12.767);
         }
         {
-            var strExpr = new String("x");
+            var strExpr = "x";
             var scanner = new Scanner("3.1\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 3.1);
         }
         {
-            var strExpr = new String("1 - x");
+            var strExpr = "1 - x";
             var scanner = new Scanner("-1.1\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 2.1);
         }
         {
-            var strExpr = new String("x + 1.3 + x - x");
+            var strExpr = "x + 1.3 + x - x";
             var scanner = new Scanner("3.1\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 4.4);
         }
         {
-            var strExpr = new String("x + 1.3 + x - x - xx");
+            var strExpr = "x + 1.3 + x - x - xx";
             var scanner = new Scanner("3.1 2.2\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 2.2);
         }
         {
-            var strExpr = new String("3 * 5.3");
+            var strExpr = "3 * 5.3";
             var scanner = new Scanner("\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 15.9);
         }
         {
-            var strExpr = new String("5 / 4");
+            var strExpr = "5 / 4";
             var scanner = new Scanner("\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 1.25);
         }
         {
-            var strExpr = new String("2.5 * x / 10 - 3.0 / x");
+            var strExpr = "2.5 * x / 10 - 3.0 / x";
             var scanner = new Scanner("5.5\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, 0.829545454545);
         }
         {
-            var strExpr = new String("2.5 * x / 10 - 3.0 / x + xx / x - x");
+            var strExpr = "2.5 * x / 10 - 3.0 / x + xx / x - x";
             var scanner = new Scanner("3.2 4\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, -2.0875);
         }

@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -71,13 +70,6 @@ public class ParserImpl implements Parser {
         var secondOperand = expressions.pop();
         var firstOperand = expressions.pop();
         expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
-    }
-
-    private void tryAddToken(ArrayList<String> tokens, StringBuilder newToken) {
-        if (newToken.length() > 0) {
-            tokens.add(newToken.toString());
-            newToken.setLength(0);
-        }
     }
 
     private List<String> splitToTokens(String input) {

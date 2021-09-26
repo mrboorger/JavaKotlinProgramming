@@ -1,13 +1,12 @@
-import javax.lang.model.type.NullType;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class VariablesVisitor implements ExpressionVisitor {
-    private HashMap<String, Double> mVariablesValues;
-    private Scanner mScanner;
+    private final HashMap<String, Double> mVariablesValues;
+    private final Scanner mScanner;
 
     VariablesVisitor(Scanner scanner) {
-        mVariablesValues = new HashMap<String, Double>();
+        mVariablesValues = new HashMap<>();
         mScanner = scanner;
     }
 
