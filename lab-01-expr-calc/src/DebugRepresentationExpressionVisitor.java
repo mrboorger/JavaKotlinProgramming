@@ -15,4 +15,10 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
     public String visitVariable(Variable expr) {
         return "VAR[" + expr.getName() + "]";
     }
+
+    @Override
+    public String visitParenthesis(ParenthesisExpression expr) {
+        var childValue = (String)expr.getChild().accept(this);
+        return "PAR(" + childValue + ")";
+    }
 }

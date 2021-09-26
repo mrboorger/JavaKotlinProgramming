@@ -38,4 +38,10 @@ public class VariablesVisitor implements ExpressionVisitor {
         expr.setValue(mVariablesValues.get(name));
         return null;
     }
+
+    @Override
+    public Object visitParenthesis(ParenthesisExpression expr) {
+        expr.getChild().accept(this);
+        return null;
+    }
 }

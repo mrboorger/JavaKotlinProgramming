@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
 
 public class ParserImpl implements Parser {
@@ -5,7 +8,9 @@ public class ParserImpl implements Parser {
         ADDITION(3),
         SUBTRACTION(3),
         MULTIPLICATION(2),
-        DIVISION(2);
+        DIVISION(2),
+        OPENING_PARANTHESIS(111),
+        CLOSING_PARANTHESIS(111);
 
         private final int mPriority;  // lower = more priority
 
@@ -39,6 +44,12 @@ public class ParserImpl implements Parser {
                 case "/": {
                     return DIVISION;
                 }
+                case "(": {
+                    return OPENING_PARANTHESIS;
+                }
+                case ")": {
+                    return CLOSING_PARANTHESIS;
+                }
                 default: {
                     assert true : "Invalid operation " + str;
                     return ADDITION;
@@ -53,47 +64,85 @@ public class ParserImpl implements Parser {
         if (expressions.size() < 2) {
             throwExpressionParseException(input);
         }
+        if (operations.peek() == Operation.OPENING_PARANTHESIS) {
+            throwExpressionParseException(input);
+        }
         var newBinExpr = BinaryExpression.OpType.valueOf(operations.pop().toString());
         var secondOperand = expressions.pop();
         var firstOperand = expressions.pop();
         expressions.push(new BinaryExpressionImpl(newBinExpr, firstOperand, secondOperand));
     }
 
+    private void tryAddToken(ArrayList<String> tokens, StringBuilder newToken) {
+        if (newToken.length() > 0) {
+            tokens.add(newToken.toString());
+            newToken.setLength(0);
+        }
+    }
+
+    private List<String> splitToTokens(String input) {
+        var tokens = new ArrayList<String>();
+        for (var str : input.split("\\s+")) {
+            // (?<=[+\-*/()])|(?=[+\-*/()])
+            for (var str2 : str.split("(?<=[()])|(?=[()])")) {
+                if (!str2.isEmpty()) {
+                    tokens.add(str2);
+                }
+            }
+        }
+        return tokens;
+    }
+
     public Expression parseExpression(String input) throws ExpressionParseException {
         var operations = new Stack<Operation>();
         var expressions = new Stack<Expression>();
-        boolean isPrevVariableOrConstant = false;
-        for (var strTok : input.split("\\s+")) {
+        boolean isFirstOp = true;
+        for (var strTok : splitToTokens(input)) {
             switch (strTok) {
                 case "-":
                 case "+":
                 case "*":
                 case "/": {
                     // unary operation
-                    if (!isPrevVariableOrConstant) {
+                    if (isFirstOp) {
                         throwExpressionParseException(input);
                     }
-                    isPrevVariableOrConstant = false;
                     var newOperation = Operation.fromString(strTok);
-                    while (!operations.empty() && Operation.isNotLessPriority(operations.peek(), newOperation)) {
+                    while (!operations.empty() &&
+                            operations.peek() != Operation.OPENING_PARANTHESIS &&
+                            Operation.isNotLessPriority(operations.peek(), newOperation)) {
                         processOperations(operations, expressions, input);
                     }
                     operations.push(newOperation);
                     break;
                 }
+                case "(": {
+                    operations.push(Operation.OPENING_PARANTHESIS);
+                    break;
+                }
+                case ")": {
+                    while (!operations.empty() && operations.peek() != Operation.OPENING_PARANTHESIS) {
+                        processOperations(operations, expressions, input);
+                    }
+                    if (operations.empty() || operations.pop() != Operation.OPENING_PARANTHESIS ||
+                        expressions.empty()) {
+                        throwExpressionParseException(input);
+                    }
+                    expressions.push(new ParanthesisExpressionImpl(expressions.pop()));
+                    break;
+                }
                 default: {
                     // variable or constant
-                    isPrevVariableOrConstant = true;
                     expressions.push(CreateVariableOrConstant(strTok));
                     break;
                 }
             }
+            isFirstOp = false;
         }
 
         while(!operations.empty()) {
             processOperations(operations, expressions, input);
         }
-
 
         if (!operations.empty() || expressions.size() != 1) {
             throwExpressionParseException(input);

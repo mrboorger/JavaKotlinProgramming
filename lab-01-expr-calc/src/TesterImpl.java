@@ -51,6 +51,12 @@ public class TesterImpl implements Tester {
         TesterImpl.parserExceptionTester.test(parser, "/ 2 2");
         TesterImpl.parserExceptionTester.test(parser, "/ 2 + 2");
         TesterImpl.parserExceptionTester.test(parser, "2 / - 2");
+
+        TesterImpl.parserExceptionTester.test(parser, "(");
+        TesterImpl.parserExceptionTester.test(parser, ")");
+        TesterImpl.parserExceptionTester.test(parser, "()");
+        TesterImpl.parserExceptionTester.test(parser, "(1 + (2 + 3)))");
+        TesterImpl.parserExceptionTester.test(parser, "((1+2)");
     }
 
     private static class parserDebugRepresentationTester {
@@ -59,9 +65,8 @@ public class TesterImpl implements Tester {
             try {
                 root = parser.parseExpression(strExpr);
             } catch (ExpressionParseException e) {
-                assert true : "Unexpected ExpressionParseException on " + strExpr + e.getMessage();
+                assert false : "Unexpected ExpressionParseException on " + strExpr + e.getMessage();
             }
-            assert root != null : "Unexpected null root";
 
             String result = (String)root.accept(new DebugRepresentationExpressionVisitor());
             assert result.equals(expected) : result + "!=" + expected;
@@ -116,6 +121,26 @@ public class TesterImpl implements Tester {
             String expected = "ADD(ADD(MUL(CON[2.0], VAR[x]), DIV(CON[3.0], CON[4.2])), VAR[t])";
             parserDebugRepresentationTester.test(parser, strExpr, expected);
         }
+        {
+            String strExpr = "  (1)   ";
+            String expected = "PAR(CON[1.0])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "  (1 )";
+            String expected = "PAR(CON[1.0])";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "( 1 + 2)";
+            String expected = "PAR(ADD(CON[1.0], CON[2.0]))";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "(x + 13) / ((1 - xx) * 3)";
+            String expected = "DIV(PAR(ADD(VAR[x], CON[13.0])), PAR(MUL(PAR(SUB(CON[1.0], VAR[xx])), CON[3.0])))";
+            parserDebugRepresentationTester.test(parser, strExpr, expected);
+        }
     }
 
     private static class parserCalcDepthTester {
@@ -124,9 +149,8 @@ public class TesterImpl implements Tester {
             try {
                 root = parser.parseExpression(strExpr);
             } catch (ExpressionParseException e) {
-                assert true : "Unexpected ExpressionParseException on " + strExpr;
+                assert false : "Unexpected ExpressionParseException on " + strExpr;
             }
-            assert root != null : "Unexpected null root";
 
             Integer result = (Integer)root.accept(new CalcDepthVisitor());
             assert result.equals(expected) : "Wrong depth " + result + " != " + expected;
@@ -178,6 +202,21 @@ public class TesterImpl implements Tester {
             Integer expected = 3;
             parserCalcDepthTester.test(parser, strExpr, expected);
         }
+        {
+            String strExpr = "(Chifuyu)";
+            Integer expected = 2;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "  (((1)))   +   2  ";
+            Integer expected = 5;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
+        {
+            String strExpr = "    3 + (Chifuyu + 33) / ((13 - x) + 12)  ";
+            Integer expected = 7;
+            parserCalcDepthTester.test(parser, strExpr, expected);
+        }
     }
 
     private static class variablesVisitorTester {
@@ -188,9 +227,8 @@ public class TesterImpl implements Tester {
             try {
                 root = parser.parseExpression(strExpr);
             } catch (ExpressionParseException e) {
-                assert true : "Unexpected ExpressionParseException on " + strExpr;
+                assert false : "Unexpected ExpressionParseException on " + strExpr;
             }
-            assert root != null : "Unexpected null root";
 
             var varVisitor = new VariablesVisitor(scanner);
 
@@ -201,7 +239,7 @@ public class TesterImpl implements Tester {
                 var hashMap = (HashMap<String, Integer>)field.get(varVisitor);
                 assert hashMap.equals(expected) : "HashMaps don't equals";
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                assert true : "No field error";
+                assert false : "No field error";
             }
         }
     }
@@ -242,6 +280,15 @@ public class TesterImpl implements Tester {
             }};
             variablesVisitorTester.test(parser, strExpr, scanner, expected);
         }
+        {
+            String strExpr = "3 + (Chifuyu + 33) / ((13 - x) + 12)";
+            var scanner = new Scanner("3.33 4.33\n").useLocale(Locale.US);
+            var expected = new HashMap<String, Double>() {{
+                put("Chifuyu", 3.33);
+                put("x", 4.33);
+            }};
+            variablesVisitorTester.test(parser, strExpr, scanner, expected);
+        }
     }
 
     private static class ComputeExpressionTester {
@@ -253,9 +300,8 @@ public class TesterImpl implements Tester {
             try {
                 root = parser.parseExpression(strExpr);
             } catch (ExpressionParseException e) {
-                assert true : "Unexpected ExpressionParseException on " + strExpr;
+                assert false : "Unexpected ExpressionParseException on " + strExpr;
             }
-            assert root != null : "Unexpected null root";
 
             var varVisitor = new VariablesVisitor(scanner);
             root.accept(varVisitor);
@@ -317,6 +363,26 @@ public class TesterImpl implements Tester {
             var strExpr = new String("2.5 * x / 10 - 3.0 / x + xx / x - x");
             var scanner = new Scanner("3.2 4\n").useLocale(Locale.US);
             ComputeExpressionTester.test(parser, strExpr, scanner, -2.0875);
+        }
+        {
+            String strExpr = "3 + (Chifuyu + 33) / ((13 - x) + 12)";
+            var scanner = new Scanner("3.33 4.33\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, 4.75761973875);
+        }
+        {
+            String strExpr = "(12 - 3) / x + x - 3 * ((xX + -1.2) * 2.5)";
+            var scanner = new Scanner("5 3\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, -6.7);
+        }
+        {
+            String strExpr = "3 + 4 * (-4 - (-4 * ((3 + 4) - 5) / (12 + 4 / 6)) / 6) * 5";
+            var scanner = new Scanner("3 4 -4\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, -74.894736842105263);
+        }
+        {
+            String strExpr = "    gf + t * (x - (x * ((gf + t) - 5) / (12 + 4 / 6)) / 6) * 5 ";
+            var scanner = new Scanner("3 4 -4\n").useLocale(Locale.US);
+            ComputeExpressionTester.test(parser, strExpr, scanner, -74.894736842105263);
         }
     }
 }

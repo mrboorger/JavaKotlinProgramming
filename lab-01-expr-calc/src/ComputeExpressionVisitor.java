@@ -33,8 +33,8 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
         return variable.getValue();
     }
 
-//    @Override
-//    public Double visitParenthesis(ParenthesisExpression expr) {
-//        return 1.0;
-//    }
+    @Override
+    public Double visitParenthesis(ParenthesisExpression expr) {
+        return (Double)expr.getChild().accept(this);
+    }
 }

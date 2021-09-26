@@ -15,4 +15,10 @@ public class CalcDepthVisitor implements ExpressionVisitor {
     public Integer visitVariable(Variable expr) {
         return 1;
     }
+
+    @Override
+    public Integer visitParenthesis(ParenthesisExpression expr) {
+        var childValue = (Integer)expr.getChild().accept(this);
+        return childValue + 1;
+    }
 }
