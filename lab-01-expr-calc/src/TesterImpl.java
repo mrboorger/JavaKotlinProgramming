@@ -393,7 +393,7 @@ public class TesterImpl implements Tester {
             }
 
             var result = (String)root.accept(ToStringVisitor.INSTANCE);
-            assert result.equals(expected) : "Same representation " + strExpr +
+            assert result.equals(expected) : "Not same representation " + strExpr +
                     "[" + result + " vs " + expected + "]";
         }
     }
@@ -402,7 +402,7 @@ public class TesterImpl implements Tester {
         var parser = new ParserImpl();
         {
             var strExpr = "  -0.233 ";
-            var expected = " -0.233";
+            var expected = "-0.233";
             ToStringTester.test(parser, strExpr, expected);
         }
         {
@@ -412,23 +412,23 @@ public class TesterImpl implements Tester {
         }
         {
             var strExpr = "1 +   3 ";
-            var expected = "1 + 3";
+            var expected = "1.0 + 3.0";
             ToStringTester.test(parser, strExpr, expected);
         }
         {
             var strExpr = "x / x + 13 - (3 )";
-            var expected = "x / x + 13 - (3)";
+            var expected = "x / x + 13.0 - (3.0)";
             ToStringTester.test(parser, strExpr, expected);
         }
         {
             String strExpr = "3 + (Chifuyu + 33) / ((13 - x) + 12)";
-            var expected = "gf + t * (x - (x * ((gf + t) - 5) / (12 + 4 / 6)) / 6) * 5";
+            var expected = "3.0 + (Chifuyu + 33.0) / ((13.0 - x) + 12.0)";
             ToStringTester.test(parser, strExpr, expected);
         }
         {
             var strExpr = "    gf +   t * (x - (x *   ((gf + t) - 5    ) / " +
                           "(12   +  4  /   6)) / 6)   *   5   ";
-            var expected = "gf + t * (x - (x * ((gf + t) - 5) / (12 + 4 / 6)) / 6) * 5";
+            var expected = "gf + t * (x - (x * ((gf + t) - 5.0) / (12.0 + 4.0 / 6.0)) / 6.0) * 5.0";
             ToStringTester.test(parser, strExpr, expected);
         }
     }
