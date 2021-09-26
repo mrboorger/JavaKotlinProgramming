@@ -1,7 +1,7 @@
-public class ParanthesisExpressionImpl implements ParenthesisExpression {
+public class ParenthesisExpressionImpl implements ParenthesisExpression {
     private final Expression mChild;
 
-    public ParanthesisExpressionImpl(Expression child) {
+    public ParenthesisExpressionImpl(Expression child) {
         mChild = child;
     }
 

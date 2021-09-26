@@ -8,8 +8,8 @@ public class ParserImpl implements Parser {
         SUBTRACTION(3),
         MULTIPLICATION(2),
         DIVISION(2),
-        OPENING_PARANTHESIS(111),
-        CLOSING_PARANTHESIS(111);
+        OPENING_PARENTHESIS(111),
+        CLOSING_PARENTHESIS(111);
 
         private final int mPriority;  // lower = more priority
 
@@ -44,10 +44,10 @@ public class ParserImpl implements Parser {
                     return DIVISION;
                 }
                 case "(": {
-                    return OPENING_PARANTHESIS;
+                    return OPENING_PARENTHESIS;
                 }
                 case ")": {
-                    return CLOSING_PARANTHESIS;
+                    return CLOSING_PARENTHESIS;
                 }
                 default: {
                     assert true : "Invalid operation " + str;
@@ -63,7 +63,7 @@ public class ParserImpl implements Parser {
         if (expressions.size() < 2) {
             throwExpressionParseException(input);
         }
-        if (operations.peek() == Operation.OPENING_PARANTHESIS) {
+        if (operations.peek() == Operation.OPENING_PARENTHESIS) {
             throwExpressionParseException(input);
         }
         var newBinExpr = BinaryExpression.OpType.valueOf(operations.pop().toString());
@@ -101,7 +101,7 @@ public class ParserImpl implements Parser {
                     }
                     var newOperation = Operation.fromString(strTok);
                     while (!operations.empty() &&
-                            operations.peek() != Operation.OPENING_PARANTHESIS &&
+                            operations.peek() != Operation.OPENING_PARENTHESIS &&
                             Operation.isNotLessPriority(operations.peek(), newOperation)) {
                         processOperations(operations, expressions, input);
                     }
@@ -109,18 +109,18 @@ public class ParserImpl implements Parser {
                     break;
                 }
                 case "(": {
-                    operations.push(Operation.OPENING_PARANTHESIS);
+                    operations.push(Operation.OPENING_PARENTHESIS);
                     break;
                 }
                 case ")": {
-                    while (!operations.empty() && operations.peek() != Operation.OPENING_PARANTHESIS) {
+                    while (!operations.empty() && operations.peek() != Operation.OPENING_PARENTHESIS) {
                         processOperations(operations, expressions, input);
                     }
-                    if (operations.empty() || operations.pop() != Operation.OPENING_PARANTHESIS ||
+                    if (operations.empty() || operations.pop() != Operation.OPENING_PARENTHESIS ||
                         expressions.empty()) {
                         throwExpressionParseException(input);
                     }
-                    expressions.push(new ParanthesisExpressionImpl(expressions.pop()));
+                    expressions.push(new ParenthesisExpressionImpl(expressions.pop()));
                     break;
                 }
                 default: {
