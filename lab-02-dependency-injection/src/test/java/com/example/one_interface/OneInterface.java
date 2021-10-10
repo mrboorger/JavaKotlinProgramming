@@ -12,7 +12,7 @@ public class OneInterface {
         myDI.register(Box.class, AppleBox.class);
         myDI.completeRegistration();
         var box = myDI.resolve(Box.class);
-        Assert.assertEquals(box, AppleBox.class);
+        Assert.assertEquals(box.getClass(), AppleBox.class);
     }
 
     @Test

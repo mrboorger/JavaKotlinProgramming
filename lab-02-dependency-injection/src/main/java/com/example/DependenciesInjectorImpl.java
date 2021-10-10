@@ -5,13 +5,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 public class DependenciesInjectorImpl implements DependenciesInjector {
     boolean mIsCompleteReg = false;
+
     final HashSet<Class<?>> mRegisteredClasses = new HashSet<>();
-    final HashMap<Class<?>, Constructor<?>> mConstructor = new HashMap<>();
     final HashMap<Class<?>, Class<?>> mInterfacesImplementation = new HashMap<>();
     final HashMap<Class<?>, Class<?>[]> mNeededParams = new HashMap<>();
+    final HashMap<Class<?>, Constructor<?>> mConstructor = new HashMap<>();
+
+    final HashSet<Class<?>> isSingleton = new HashSet<>();
+    final HashMap<Class<?>, Object> singletonInstance = new HashMap<>();
 
 
     @Override
@@ -23,11 +28,18 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         if (mRegisteredClasses.contains(cl)) {
             throw new RuntimeException(cl + " has already registered");
         }
+        if (cl.isInterface()) {
+            throw new IllegalArgumentException(cl + " ");
+        }
 
         mRegisteredClasses.add(cl);
-        var constructor = GetInjectConstructor(cl);
+        var constructor = getInjectConstructor(cl);
         mConstructor.put(cl, constructor);
         mNeededParams.put(cl, constructor.getParameterTypes());
+
+        if (constructor.isAnnotationPresent(Singleton.class)) {
+            isSingleton.add(cl);
+        }
     }
 
     @Override
@@ -41,16 +53,20 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
             throw new RuntimeException(interf + " has already registered");
         }
         if (!interf.isInterface()) {
-            throw new IllegalArgumentException(interf + " doesn't an interface");
+            throw new IllegalArgumentException(interf + " isn't an interface");
         }
         if (!interf.isAssignableFrom(implCl)) {
-            throw new IllegalArgumentException(implCl + " doesn't implements " + interf);
+            throw new IllegalArgumentException(implCl + " isn't implements " + interf);
         }
 
         mInterfacesImplementation.put(interf, implCl);
-        var constructor = GetInjectConstructor(implCl);
+        var constructor = getInjectConstructor(implCl);
         mConstructor.put(implCl, constructor);
         mNeededParams.put(implCl, constructor.getParameterTypes());
+
+        if (constructor.isAnnotationPresent(Singleton.class)) {
+            isSingleton.add(implCl);
+        }
     }
 
     @Override
@@ -85,13 +101,21 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         var parameters = mNeededParams.get(cl);
         var parametersValues = new ArrayList<>();
 
+        if (singletonInstance.containsKey(cl)) {
+            return (T) singletonInstance.get(cl);
+        }
+
         if (parameters != null) {
             for (var to : parameters) {
                 parametersValues.add(resolve(to));
             }
         }
         try {
-            return cl.cast(constructor.newInstance(parametersValues.toArray()));
+            var instance = cl.cast(constructor.newInstance(parametersValues.toArray()));
+            if (isSingleton.contains(cl)) {
+                singletonInstance.put(cl, instance);
+            }
+            return instance;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             assert false : "Failed to construct " + cl;
@@ -100,7 +124,7 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         return null;
     }
 
-    private Constructor<?> GetInjectConstructor(Class<?> cl) {
+    private Constructor<?> getInjectConstructor(Class<?> cl) {
         var injectConstructors = Arrays.stream(cl.getConstructors()).
                 filter(constr -> constr.isAnnotationPresent(Inject.class)).
                 collect(Collectors.toList());
