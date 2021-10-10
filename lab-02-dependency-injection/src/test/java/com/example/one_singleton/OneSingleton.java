@@ -2,8 +2,6 @@ package com.example.one_singleton;
 
 
 import com.example.DependenciesInjectorImpl;
-import com.example.two_classes.Apple;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

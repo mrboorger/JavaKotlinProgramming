@@ -1,7 +1,6 @@
 package com.example.some_classes;
 
 import com.example.DependenciesInjectorImpl;
-import com.example.two_classes.Apple;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 

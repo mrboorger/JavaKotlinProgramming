@@ -29,7 +29,8 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
             throw new RuntimeException(cl + " has already registered");
         }
         if (cl.isInterface()) {
-            throw new IllegalArgumentException(cl + " ");
+            throw new IllegalArgumentException(cl +
+                    " is an interface, but expected a class. Use register(interface, implementation)");
         }
 
         mRegisteredClasses.add(cl);
@@ -55,7 +56,11 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         if (!interf.isInterface()) {
             throw new IllegalArgumentException(interf + " isn't an interface");
         }
+        if (implCl.isInterface()) {
+            throw new IllegalArgumentException(implCl + " is an interface, but expected class");
+        }
         if (!interf.isAssignableFrom(implCl)) {
+            System.out.println("Kek");
             throw new IllegalArgumentException(implCl + " isn't implements " + interf);
         }
 

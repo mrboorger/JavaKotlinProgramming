@@ -5,8 +5,6 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-
 public class OneClassTests {
     @Test
     public void Basic() {
@@ -46,5 +44,14 @@ public class OneClassTests {
             myDI.completeRegistration();
         });
         Assert.assertTrue(exception.getMessage().endsWith("Can't complete registration. Registration was completed"));
+    }
+
+    @Test
+    public void nullTest() {
+        var myDI = new DependenciesInjectorImpl();
+        var exception = Assertions.assertThrows(RuntimeException.class, () -> {
+            myDI.register(null);
+        });
+        Assert.assertTrue(exception.getMessage().endsWith("Class expected but null provided"));
     }
 }
