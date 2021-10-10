@@ -45,6 +45,6 @@ public class OneClassTests {
         var exception = Assertions.assertThrows(RuntimeException.class, () -> {
             myDI.completeRegistration();
         });
-        Assert.assertTrue(exception.getMessage().endsWith("Can't complete registration. Registration was complete"));
+        Assert.assertTrue(exception.getMessage().endsWith("Can't complete registration. Registration was completed"));
     }
 }

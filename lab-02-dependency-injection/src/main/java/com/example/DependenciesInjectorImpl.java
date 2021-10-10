@@ -5,12 +5,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 public class DependenciesInjectorImpl implements DependenciesInjector {
     boolean mIsCompleteReg = false;
+    final HashSet<Class<?>> mRegisteredClasses = new HashSet<>();
     final HashMap<Class<?>, Constructor<?>> mConstructor = new HashMap<>();
-    final HashMap<Class<?>, Class<?>> mRegisteredInterfaces = new HashMap<>();
+    final HashMap<Class<?>, Class<?>> mInterfacesImplementation = new HashMap<>();
     final HashMap<Class<?>, Class<?>[]> mNeededParams = new HashMap<>();
 
 
@@ -20,22 +20,14 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         if (mIsCompleteReg) {
             throw new RuntimeException("Can't register. Registration was completed");
         }
-        if (mConstructor.containsKey(cl)) {
+        if (mRegisteredClasses.contains(cl)) {
             throw new RuntimeException(cl + " has already registered");
         }
 
-        var injectConstructors = Arrays.stream(cl.getConstructors()).
-                filter(constr -> constr.isAnnotationPresent(Inject.class)).
-                collect(Collectors.toList());
-        if (injectConstructors.size() == 0) {
-            throw new RuntimeException(cl + " doesn't have an inject constructor");
-        }
-        if (injectConstructors.size() > 1) {
-            throw new RuntimeException(cl + "has more than 1 inject constructor");
-        }
-
-        mConstructor.put(cl, injectConstructors.get(0));
-        mNeededParams.put(cl, injectConstructors.get(0).getParameterTypes());
+        mRegisteredClasses.add(cl);
+        var constructor = GetInjectConstructor(cl);
+        mConstructor.put(cl, constructor);
+        mNeededParams.put(cl, constructor.getParameterTypes());
     }
 
     @Override
@@ -45,14 +37,20 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
         if (mIsCompleteReg) {
             throw new RuntimeException("Can't register. Registration was completed");
         }
+        if (mInterfacesImplementation.containsKey(interf)) {
+            throw new RuntimeException(interf + " has already registered");
+        }
         if (!interf.isInterface()) {
             throw new IllegalArgumentException(interf + " doesn't an interface");
         }
         if (!interf.isAssignableFrom(implCl)) {
-            throw new IllegalArgumentException(implCl + " doesn't an implementation of " + interf);
+            throw new IllegalArgumentException(implCl + " doesn't implements " + interf);
         }
 
-        mRegisteredInterfaces.put(interf, implCl);
+        mInterfacesImplementation.put(interf, implCl);
+        var constructor = GetInjectConstructor(implCl);
+        mConstructor.put(implCl, constructor);
+        mNeededParams.put(implCl, constructor.getParameterTypes());
     }
 
     @Override
@@ -69,12 +67,21 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
             throw new RuntimeException("Registration isn't completed");
         }
         nullCheck(cl);
-        System.out.println(cl);
-        if (!mConstructor.containsKey(cl)) {
-            throw new RuntimeException(cl + " isn't registered");
+        if (cl.isInterface()) {
+            if (!mInterfacesImplementation.containsKey(cl)) {
+                throw new RuntimeException(cl + " isn't registered");
+            }
+            return cl.cast(createClass(mInterfacesImplementation.get(cl)));
+        } else {
+            if (!mRegisteredClasses.contains(cl)) {
+                throw new RuntimeException(cl + " isn't registered");
+            }
+            return createClass(cl);
         }
+    }
+
+    private <T> T createClass(Class<T> cl) {
         var constructor = mConstructor.get(cl);
-        assert constructor != null : "kekkk";
         var parameters = mNeededParams.get(cl);
         var parametersValues = new ArrayList<>();
 
@@ -84,13 +91,26 @@ public class DependenciesInjectorImpl implements DependenciesInjector {
             }
         }
         try {
-            return (T) constructor.newInstance(parametersValues.toArray());
+            return cl.cast(constructor.newInstance(parametersValues.toArray()));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             assert false : "Failed to construct " + cl;
         }
-        assert false : "Unreacheble";
+        assert false : "Unreachable";
         return null;
+    }
+
+    private Constructor<?> GetInjectConstructor(Class<?> cl) {
+        var injectConstructors = Arrays.stream(cl.getConstructors()).
+                filter(constr -> constr.isAnnotationPresent(Inject.class)).
+                collect(Collectors.toList());
+        if (injectConstructors.size() == 0) {
+            throw new RuntimeException(cl + " doesn't have an inject constructor");
+        }
+        if (injectConstructors.size() > 1) {
+            throw new RuntimeException(cl + "has more than 1 inject constructor");
+        }
+        return injectConstructors.get(0);
     }
 
     static private void nullCheck(Class<?> cl) {
