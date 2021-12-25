@@ -31,25 +31,25 @@ public class ParserImpl implements Parser {
 
         private static Operation fromString(String str) {
             switch (str) {
-                case "+" -> {
+                case "+": {
                     return ADDITION;
                 }
-                case "-" -> {
+                case "-": {
                     return SUBTRACTION;
                 }
-                case "*" -> {
+                case "*": {
                     return MULTIPLICATION;
                 }
-                case "/" -> {
+                case "/": {
                     return DIVISION;
                 }
-                case "(" -> {
+                case "(": {
                     return OPENING_PARENTHESIS;
                 }
-                case ")" -> {
+                case ")": {
                     return CLOSING_PARENTHESIS;
                 }
-                default -> {
+                default: {
                     assert true : "Invalid operation " + str;
                     return ADDITION;
                 }
@@ -91,7 +91,10 @@ public class ParserImpl implements Parser {
         boolean isFirstOp = true;
         for (var strTok : splitToTokens(input)) {
             switch (strTok) {
-                case "-", "+", "*", "/" -> {
+                case "-":
+                case "+":
+                case "*":
+                case "/": {
                     // unary operation
                     if (isFirstOp) {
                         throwExpressionParseException(input);
@@ -105,11 +108,11 @@ public class ParserImpl implements Parser {
                     operations.push(newOperation);
                     break;
                 }
-                case "(" -> {
+                case "(": {
                     operations.push(Operation.OPENING_PARENTHESIS);
                     break;
                 }
-                case ")" -> {
+                case ")": {
                     while (!operations.empty() && operations.peek() != Operation.OPENING_PARENTHESIS) {
                         processOperations(operations, expressions, input);
                     }
@@ -120,7 +123,7 @@ public class ParserImpl implements Parser {
                     expressions.push(new ParenthesisExpressionImpl(expressions.pop()));
                     break;
                 }
-                default -> {
+                default: {
                     // variable or constant
                     expressions.push(CreateVariableOrConstant(strTok));
                     break;
@@ -129,7 +132,7 @@ public class ParserImpl implements Parser {
             isFirstOp = false;
         }
 
-        while(!operations.empty()) {
+        while (!operations.empty()) {
             processOperations(operations, expressions, input);
         }
 
@@ -143,7 +146,7 @@ public class ParserImpl implements Parser {
         throw new ExpressionParseException("Invalid expression " + input);
     }
 
-    
+
     static boolean isVariable(String str) {
         assert str != null : "";
         return (!str.isEmpty() && Character.isLetter(str.charAt(0)));

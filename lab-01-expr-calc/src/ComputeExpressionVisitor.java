@@ -6,16 +6,16 @@ public class ComputeExpressionVisitor implements ExpressionVisitor<Double> {
         var leftValue = expr.getLeft().accept(this);
         var rightValue = expr.getRight().accept(this);
         switch (expr.getOperation()) {
-            case ADDITION -> {
+            case ADDITION : {
                 return leftValue + rightValue;
             }
-            case SUBTRACTION -> {
+            case SUBTRACTION : {
                 return leftValue - rightValue;
             }
-            case MULTIPLICATION -> {
+            case MULTIPLICATION : {
                 return leftValue * rightValue;
             }
-            case DIVISION -> {
+            case DIVISION : {
                 return leftValue / rightValue;
             }
         }
