@@ -1,6 +1,6 @@
 public interface Literal extends Expression {
     @Override
-    default Object accept(ExpressionVisitor visitor) {
+    default <T> T accept(ExpressionVisitor<T> visitor) {
         return visitor.visitLiteral(this);
     }
     double getValue();

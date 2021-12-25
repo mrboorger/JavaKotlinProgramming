@@ -1,7 +1,8 @@
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class VariablesVisitor implements ExpressionVisitor {
+public class VariablesVisitor implements ExpressionVisitor<Object> {
     private final HashMap<String, Double> mVariablesValues;
     private final Scanner mScanner;
 
@@ -24,7 +25,17 @@ public class VariablesVisitor implements ExpressionVisitor {
 
     private void readVariable(String name) {
         System.out.print("value for '" + name + "': ");
-        mVariablesValues.put(name, mScanner.nextDouble());
+        Double number = null;
+        while (number == null) {
+            try {
+                number = mScanner.nextDouble();
+            } catch (InputMismatchException e) {
+                mScanner.nextLine();
+                System.out.println("Error. This is not a number. Try another.");
+            }
+        }
+
+        mVariablesValues.put(name, number);
         System.out.println();
     }
 

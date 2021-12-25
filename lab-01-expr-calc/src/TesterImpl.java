@@ -69,7 +69,7 @@ public class TesterImpl implements Tester {
                 assert false : "Unexpected ExpressionParseException on " + strExpr + e.getMessage();
             }
 
-            String result = (String)root.accept(DebugRepresentationExpressionVisitor.INSTANCE);
+            String result = root.accept(DebugRepresentationExpressionVisitor.INSTANCE);
             assert result.equals(expected) : result + "!=" + expected;
         }
     }
@@ -153,7 +153,7 @@ public class TesterImpl implements Tester {
                 assert false : "Unexpected ExpressionParseException on " + strExpr;
             }
 
-            Integer result = (Integer)root.accept(CalcDepthVisitor.INSTANCE);
+            Integer result = root.accept(CalcDepthVisitor.INSTANCE);
             assert result.equals(expected) : "Wrong depth " + result + " != " + expected;
         }
     }
@@ -186,8 +186,8 @@ public class TesterImpl implements Tester {
             parserCalcDepthTester.test(parser, strExpr, expected);
         }
         {
-            Integer expected = 1000001;
-            parserCalcDepthTester.test(parser, "x" + " + x".repeat(1000000), expected);
+            Integer expected = 100001;
+            parserCalcDepthTester.test(parser, "x" + " + x".repeat(100000), expected);
         }
         {
             String strExpr = "x + x / 3 * 2 + 3";

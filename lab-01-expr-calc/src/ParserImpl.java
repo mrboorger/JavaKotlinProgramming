@@ -117,7 +117,7 @@ public class ParserImpl implements Parser {
                         processOperations(operations, expressions, input);
                     }
                     if (operations.empty() || operations.pop() != Operation.OPENING_PARENTHESIS ||
-                        expressions.empty()) {
+                            expressions.empty()) {
                         throwExpressionParseException(input);
                     }
                     expressions.push(new ParenthesisExpressionImpl(expressions.pop()));
@@ -132,7 +132,7 @@ public class ParserImpl implements Parser {
             isFirstOp = false;
         }
 
-        while(!operations.empty()) {
+        while (!operations.empty()) {
             processOperations(operations, expressions, input);
         }
 
@@ -146,7 +146,7 @@ public class ParserImpl implements Parser {
         throw new ExpressionParseException("Invalid expression " + input);
     }
 
-    
+
     static boolean isVariable(String str) {
         assert str != null : "";
         return (!str.isEmpty() && Character.isLetter(str.charAt(0)));

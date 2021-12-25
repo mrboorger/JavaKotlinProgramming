@@ -1,21 +1,21 @@
-public class ComputeExpressionVisitor implements ExpressionVisitor {
+public class ComputeExpressionVisitor implements ExpressionVisitor<Double> {
     private ComputeExpressionVisitor() {}
 
     @Override
     public Double visitBinaryExpression(BinaryExpression expr) {
-        var leftValue = (Double)expr.getLeft().accept(this);
-        var rightValue = (Double)expr.getRight().accept(this);
+        var leftValue = expr.getLeft().accept(this);
+        var rightValue = expr.getRight().accept(this);
         switch (expr.getOperation()) {
-            case ADDITION: {
+            case ADDITION : {
                 return leftValue + rightValue;
             }
-            case SUBTRACTION: {
+            case SUBTRACTION : {
                 return leftValue - rightValue;
             }
-            case MULTIPLICATION: {
+            case MULTIPLICATION : {
                 return leftValue * rightValue;
             }
-            case DIVISION: {
+            case DIVISION : {
                 return leftValue / rightValue;
             }
         }
@@ -35,7 +35,7 @@ public class ComputeExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public Double visitParenthesis(ParenthesisExpression expr) {
-        return (Double)expr.getChild().accept(this);
+        return expr.getChild().accept(this);
     }
 
     public static final ComputeExpressionVisitor INSTANCE = new ComputeExpressionVisitor();

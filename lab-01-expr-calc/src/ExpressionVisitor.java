@@ -1,6 +1,6 @@
-public interface ExpressionVisitor {
-    Object visitBinaryExpression(BinaryExpression expr);
-    Object visitLiteral(Literal expr);
-    Object visitVariable(Variable expr);
-    Object visitParenthesis(ParenthesisExpression expr);
+public interface ExpressionVisitor<T> {
+    T visitBinaryExpression(BinaryExpression expr);
+    T visitLiteral(Literal expr);
+    T visitVariable(Variable expr);
+    T visitParenthesis(ParenthesisExpression expr);
 }
