@@ -1,6 +1,6 @@
 public interface Variable extends Expression {
     @Override
-    default Object accept(ExpressionVisitor visitor) {
+    default <T> T accept(ExpressionVisitor<T> visitor) {
         return visitor.visitVariable(this);
     }
 

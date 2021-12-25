@@ -6,8 +6,8 @@ public interface BinaryExpression extends Expression {
         DIVISION('/', "DIV");
 
 
-        char mOpSymbol;
-        String mOpName;
+        final char mOpSymbol;
+        final String mOpName;
 
         OpType(char opSymbol, String opName) {
             mOpSymbol = opSymbol;

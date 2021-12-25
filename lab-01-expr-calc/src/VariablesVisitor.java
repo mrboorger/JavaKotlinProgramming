@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class VariablesVisitor implements ExpressionVisitor {
+public class VariablesVisitor implements ExpressionVisitor<Object> {
     private final HashMap<String, Double> mVariablesValues;
     private final Scanner mScanner;
 

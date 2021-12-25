@@ -11,7 +11,7 @@ public class ParenthesisExpressionImpl implements ParenthesisExpression {
     }
 
     @Override
-    public Object accept(ExpressionVisitor visitor) {
+    public <T> T accept(ExpressionVisitor<T> visitor) {
         return visitor.visitParenthesis(this);
     }
 }

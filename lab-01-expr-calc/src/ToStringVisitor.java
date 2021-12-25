@@ -1,4 +1,4 @@
-public class ToStringVisitor implements ExpressionVisitor {
+public class ToStringVisitor implements ExpressionVisitor<String> {
     private ToStringVisitor() {}
 
     @Override

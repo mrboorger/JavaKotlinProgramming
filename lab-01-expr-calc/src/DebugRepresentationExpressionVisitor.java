@@ -1,10 +1,10 @@
-public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
+public class DebugRepresentationExpressionVisitor implements ExpressionVisitor<String> {
     private DebugRepresentationExpressionVisitor() {}
 
     @Override
     public String visitBinaryExpression(BinaryExpression expr) {
-        var leftValue = (String)expr.getLeft().accept(this);
-        var rightValue = (String)expr.getRight().accept(this);
+        var leftValue = expr.getLeft().accept(this);
+        var rightValue = expr.getRight().accept(this);
         return expr.getOperation().getOpName() + "(" + leftValue + ", " + rightValue + ")";
     }
 
@@ -20,7 +20,7 @@ public class DebugRepresentationExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public String visitParenthesis(ParenthesisExpression expr) {
-        var childValue = (String)expr.getChild().accept(this);
+        var childValue = expr.getChild().accept(this);
         return "PAR(" + childValue + ")";
     }
 

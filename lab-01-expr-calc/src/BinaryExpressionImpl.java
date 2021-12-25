@@ -25,7 +25,7 @@ public class BinaryExpressionImpl implements BinaryExpression {
     }
 
     @Override
-    public Object accept(ExpressionVisitor visitor) {
+    public <T> T accept(ExpressionVisitor<T> visitor) {
         return visitor.visitBinaryExpression(this);
     }
 }
